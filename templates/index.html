@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>נחשו את הסוד</title>
+    <style>
+        body {
+            font-family: "Arial", sans-serif;
+            text-align: center;
+            background: #111;
+            color: #fff;
+            direction: rtl;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 28px;
+            color: #00c2c2;
+            padding: 20px 0;
+            text-shadow: 0 0 10px #00a3a3;
+        }
+
+        .container {
+            max-width: 450px;
+            margin: auto;
+            background: rgba(20, 20, 20, 0.9);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
+            text-align: center;
+        }
+
+        label {
+            font-size: 18px;
+            color: #00c2c2;
+            text-shadow: 0 0 5px #008080;
+        }
+
+        select, textarea, input, button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            font-size: 16px;
+            border-radius: 8px;
+            box-sizing: border-box;
+            border: 1px solid #00a3a3;
+            background: #222;
+            color: #fff;
+            text-align: center;
+            outline: none;
+        }
+
+        textarea {
+            resize: none;
+            height: 70px;
+        }
+
+        input::placeholder, textarea::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        button {
+            background-color: #008f8f;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            border: none;
+            cursor: pointer;
+            padding: 12px;
+            margin-top: 10px;
+            border-radius: 8px;
+            transition: 0.3s;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
+        }
+
+        button:hover {
+            background-color: #007777;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
+        }
+
+        #response, #password-response {
+            padding: 12px;
+            margin-top: 10px;
+            background: #1a1a1a;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+            min-height: 40px;
+            color: #00e6e6;
+            text-shadow: 0 0 3px #00c2c2;
+            border: 1px solid #00a3a3;
+        }
+
+        .icon {
+            width: 40px;
+            filter: drop-shadow(0 0 8px #00a3a3);
+        }
+    </style>
+</head>
+<body>
+
+    <h1>
+        <img src="/static/images/topsecret.png" class="icon" alt="Secret">
+        נחשו את הסוד
+    </h1>
+
+    <div class="container">
+        <label for="level">בחרו רמה:</label>
+        <select id="level" onchange="resetFields()">
+            <option value="1">רמה 1</option>
+            <option value="2">רמה 2</option>
+            <option value="3">רמה 3</option>
+            <option value="4">רמה 4</option>
+            <option value="5">רמה 5</option>
+            <option value="6">רמה 6</option>
+            <option value="7">רמה 7</option>
+        </select>
+
+        <textarea id="message" placeholder="שאלו שאלה" onkeydown="document.getElementById('password-response').innerText = ''"></textarea>
+        <button onclick="sendMessage()">שלחו</button>
+        <div id="response"></div>
+
+        <input type="password" id="password" placeholder="הכניסו סוד">
+        <button onclick="checkPassword()">בדקו</button>
+        <div id="password-response"></div>
+    </div>
+
+    <script>
+        function resetFields(level = -1) {
+            document.getElementById('message').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('response').innerText = '';
+            if (level > -1) {
+                document.getElementById('level').value = level;
+            } else {
+                document.getElementById('password-response').innerText = '';
+            }
+        }
+
+        function sendMessage() {
+            const level = document.getElementById('level').value;
+            const message = document.getElementById('message').value;
+
+            fetch('/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ level, message })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('response').innerText = data.response;
+            })
+            .catch(error => {
+                document.getElementById('response').innerText = 'שגיאה: ' + error;
+            });
+        }
+
+        function checkPassword() {
+            const password = document.getElementById('password').value;
+            const level = document.getElementById('level').value;
+
+            fetch('/check-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password, level })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('password-response').innerText = data.result;
+                if (data.result === "הסיסמא נכונה!") {
+                    resetFields(parseInt(level, 0) + 1);
+                }
+            })
+            .catch(error => {
+                document.getElementById('password-response').innerText = 'שגיאה: ' + error;
+            });
+        }
+    </script>
+
+</body>
+</html>
