@@ -1,6 +1,7 @@
 Flask
 openai==0.28.0
 python-dotenv==1.0.1
+google-cloud-ndb 
 google-cloud-secret-manager
 gunicorn
 uvicorn

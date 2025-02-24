@@ -3,6 +3,8 @@ from dotenv import load_dotenv
 from flask import Flask, render_template, request, jsonify
 import openai
 import get_api_key
+import logging
+import writer
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -47,6 +49,8 @@ def get_response(level, message):
         )
 
         # Return the assistant's reply
+        #logging.info(f"LEVEL {level} USER ATTEMPT: {message}")
+        writer.append_line_to_ndb(level, message, response.choices[0].message.content)
         return response.choices[0].message.content
 
     except Exception as e:
