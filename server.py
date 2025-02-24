@@ -2,13 +2,13 @@ import os
 from dotenv import load_dotenv
 from flask import Flask, render_template, request, jsonify
 import openai
+import get_api_key
 
 # Initialize Flask app
 app = Flask(__name__)
 
 # Set your OpenAI API key
-load_dotenv()
-openai.api_key = os.getenv("API_KEY")
+openai.api_key = get_api_key.get_api_key()
 
 # Define the assistant's prompt for specific levels
 def get_response(level, message):
